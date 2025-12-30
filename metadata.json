@@ -1,0 +1,5 @@
+{
+  "name": "Editing Manager",
+  "description": "A functional Kanban board for video production tasks with drag-and-drop support, search, and filtering.",
+  "requestFramePermissions": []
+}
