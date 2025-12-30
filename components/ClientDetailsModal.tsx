@@ -81,6 +81,13 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ client, 
       }
   };
 
+  const handleImageEdit = () => {
+      const url = prompt("Enter new image URL:", formData.img || client.img);
+      if (url) {
+          setFormData(prev => ({ ...prev, img: url }));
+      }
+  };
+
   const copyToClipboard = (text?: string) => {
       if (text) {
           navigator.clipboard.writeText(text);
@@ -138,7 +145,11 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ client, 
                         className="w-full h-full rounded-full object-cover border-4 border-white/10 shadow-lg relative z-10 bg-gray-800" 
                     />
                     {isEditing && (
-                        <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center z-20 cursor-pointer border-4 border-transparent">
+                        <div 
+                            onClick={handleImageEdit}
+                            className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center z-20 cursor-pointer border-4 border-transparent hover:bg-black/70 transition-colors"
+                            title="Change Image URL"
+                        >
                             <Icon name="edit" className="text-white text-2xl" />
                         </div>
                     )}

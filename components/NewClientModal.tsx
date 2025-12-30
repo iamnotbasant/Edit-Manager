@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Icon } from './Icon';
 import { Client } from '../types';
@@ -19,6 +20,11 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({ isOpen, onClose,
       notes: ''
   });
 
+  // Image Handling State
+  const [logoMode, setLogoMode] = useState<'url' | 'upload'>('url');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [logoFilePreview, setLogoFilePreview] = useState<string>('');
+
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -26,10 +32,30 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({ isOpen, onClose,
       setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setLogoFilePreview(reader.result as string);
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       // Simple validation
       if (!formData.name) return;
+
+      // Determine Image Source
+      let finalImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=random&color=fff`;
+      
+      if (logoMode === 'url' && logoUrl.trim()) {
+          finalImg = logoUrl;
+      } else if (logoMode === 'upload' && logoFilePreview) {
+          finalImg = logoFilePreview;
+      }
 
       const newClient: Client = {
           id: `c-${Date.now()}`,
@@ -41,8 +67,7 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({ isOpen, onClose,
           phone: formData.phone,
           projectsDone: 0,
           revenue: 0,
-          // Placeholder image logic
-          img: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=random&color=fff`
+          img: finalImg
       };
 
       onAdd(newClient);
@@ -57,6 +82,9 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({ isOpen, onClose,
         phone: '',
         notes: ''
       });
+      setLogoUrl('');
+      setLogoFilePreview('');
+      setLogoMode('url');
       onClose();
   };
 
@@ -159,21 +187,66 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({ isOpen, onClose,
                                 <Icon name="call" className="absolute left-2.5 top-2.5 text-text-secondary-light dark:text-text-secondary-dark text-[18px]" />
                             </div>
                         </div>
-                        <div className="space-y-1.5 col-span-2">
-                            <label className="text-sm font-semibold text-text-light dark:text-text-dark">Company Logo</label>
-                            <div className="flex items-center justify-center w-full">
-                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border-light dark:border-gray-600 rounded-xl cursor-pointer bg-gray-50/30 dark:bg-gray-800/30 hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:border-primary/50 transition-all group">
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <div className="p-2 rounded-full bg-white dark:bg-gray-700 mb-2 shadow-sm group-hover:scale-110 transition-transform">
-                                            <Icon name="cloud_upload" className="text-text-secondary-light dark:text-text-secondary-dark text-2xl" />
-                                        </div>
-                                        <p className="text-sm text-text-light dark:text-text-dark font-medium">Click to upload or drag and drop</p>
-                                        <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">SVG, PNG, JPG or GIF (max. 800x400px)</p>
-                                    </div>
-                                    <input className="hidden" type="file"/>
-                                </label>
+                        
+                        {/* Improved Image Handler */}
+                        <div className="space-y-3 col-span-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-semibold text-text-light dark:text-text-dark">Company Logo</label>
+                                <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 gap-1">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setLogoMode('url')}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${logoMode === 'url' ? 'bg-white dark:bg-gray-600 text-primary shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                                    >
+                                        Image URL
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setLogoMode('upload')}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${logoMode === 'upload' ? 'bg-white dark:bg-gray-600 text-primary shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                                    >
+                                        Upload
+                                    </button>
+                                </div>
                             </div>
+
+                            {logoMode === 'url' ? (
+                                <div className="relative">
+                                    <input 
+                                        type="url"
+                                        value={logoUrl}
+                                        onChange={(e) => setLogoUrl(e.target.value)}
+                                        className="w-full h-10 pl-9 pr-3 rounded-lg border border-border-light dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/50 text-text-light dark:text-text-dark text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-text-secondary-light/60 dark:placeholder:text-text-secondary-dark/60"
+                                        placeholder="https://example.com/logo.png"
+                                    />
+                                    <Icon name="link" className="absolute left-2.5 top-2.5 text-text-secondary-light dark:text-text-secondary-dark text-[18px]" />
+                                    {logoUrl && (
+                                        <div className="mt-2 flex items-center gap-2 text-xs text-green-600 dark:text-green-400 animate-in fade-in">
+                                            <Icon name="check_circle" className="text-sm" />
+                                            Preview available via hotlink
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center w-full">
+                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border-light dark:border-gray-600 rounded-xl cursor-pointer bg-gray-50/30 dark:bg-gray-800/30 hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:border-primary/50 transition-all group relative overflow-hidden">
+                                        {logoFilePreview ? (
+                                            <img src={logoFilePreview} alt="Preview" className="h-full w-full object-contain p-2" />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <div className="p-2 rounded-full bg-white dark:bg-gray-700 mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                                                    <Icon name="cloud_upload" className="text-text-secondary-light dark:text-text-secondary-dark text-2xl" />
+                                                </div>
+                                                <p className="text-sm text-text-light dark:text-text-dark font-medium">Click to upload or drag and drop</p>
+                                                <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">SVG, PNG, JPG (max. 800x400px)</p>
+                                            </div>
+                                        )}
+                                        <input className="hidden" type="file" accept="image/*" onChange={handleFileChange}/>
+                                    </label>
+                                </div>
+                            )}
                         </div>
+
                         <div className="space-y-1.5 col-span-2">
                             <label className="text-sm font-semibold text-text-light dark:text-text-dark">Notes</label>
                             <textarea 
