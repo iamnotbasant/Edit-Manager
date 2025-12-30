@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Projects Kanban</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: "#4F46E5",
+              "primary-light": "#6366f1",
+              "primary-hover": "#4338ca",
+              "background-light": "#F3F4F6",
+              "background-dark": "#111827",
+              "surface-light": "#FFFFFF",
+              "surface-dark": "#1F2937",
+              "border-light": "#E5E7EB",
+              "border-dark": "#374151",
+              "text-light": "#111827",
+              "text-secondary-light": "#6B7280",
+              "text-dark": "#F9FAFB",
+              "text-secondary-dark": "#9CA3AF",
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            boxShadow: {
+              'card-drag': '0 25px 50px -12px rgba(79, 70, 229, 0.35), 0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      /* Custom Scrollbar */
+      .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #CBD5E1;
+          border-radius: 20px;
+      }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #4B5563;
+      }
+
+      /* Hide Scrollbar util */
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+
+      /* Material Symbols helper */
+      .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+          vertical-align: middle;
+      }
+
+      /* Date/Time Inputs Fix */
+      input[type="date"]::-webkit-calendar-picker-indicator,
+      input[type="time"]::-webkit-calendar-picker-indicator {
+          cursor: pointer;
+      }
+      .dark input[type="date"]::-webkit-calendar-picker-indicator,
+      .dark input[type="time"]::-webkit-calendar-picker-indicator {
+          filter: invert(0.8);
+      }
+
+      /* Print Styles */
+      @media print {
+        body * {
+            visibility: hidden;
+        }
+        #invoice-document, #invoice-document * {
+            visibility: visible;
+        }
+        #invoice-document {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+            border: none;
+        }
+        .no-print {
+            display: none !important;
+        }
+      }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
+    "@dnd-kit/core": "https://esm.sh/@dnd-kit/core@6.1.0?external=react,react-dom",
+    "@dnd-kit/sortable": "https://esm.sh/@dnd-kit/sortable@8.0.0?external=react,react-dom",
+    "@dnd-kit/utilities": "https://esm.sh/@dnd-kit/utilities@3.2.2?external=react,react-dom",
+    "jspdf": "https://esm.sh/jspdf@2.5.1",
+    "jspdf-autotable": "https://esm.sh/jspdf-autotable@3.8.2",
+    "html2canvas": "https://esm.sh/html2canvas@1.4.1",
+    "tailwindcss": "https://esm.sh/tailwindcss@^4.1.18",
+    "@tailwindcss/forms": "https://esm.sh/@tailwindcss/forms@^0.5.11",
+    "@tailwindcss/container-queries": "https://esm.sh/@tailwindcss/container-queries@^0.1.1",
+    "next": "https://esm.sh/next@^16.1.1",
+    "next/": "https://esm.sh/next@^16.1.1/"
+  }
+}
+</script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

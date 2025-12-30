@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -10,25 +9,22 @@ interface TaskCardProps {
   task: Task;
   isOverlay?: boolean;
   onDoubleClick?: (task: Task) => void;
-  onUpdateTask?: (task: Task) => void;
+  // Props injected by Sortable Wrapper
+  style?: React.CSSProperties;
+  attributes?: any;
+  listeners?: any;
+  setNodeRef?: (node: HTMLElement | null) => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, isOverlay, onDoubleClick }) => {
-  const {
+export const TaskCard: React.FC<TaskCardProps> = ({ 
+    task, 
+    isOverlay, 
+    onDoubleClick,
+    style,
     attributes,
     listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: task.id,
-    data: {
-      type: 'Task',
-      task,
-    },
-  });
-
+    setNodeRef
+}) => {
   // Force re-render periodically to update countdowns
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -36,28 +32,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isOverlay, onDoubleCli
       return () => clearInterval(timer);
   }, []);
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   // Sort Revisions
   const sortedRevisions = useMemo(() => {
     if (!task.revisions || task.revisions.length === 0) return [];
     return [...task.revisions].sort((a, b) => a.number - b.number);
   }, [task.revisions]);
 
-  if (isDragging) {
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        className="opacity-40 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-primary/40 rounded-2xl h-[200px]"
-      />
-    );
-  }
-
-  const baseClasses = "bg-white dark:bg-surface-dark p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all group relative select-none flex flex-col gap-3";
+  const baseClasses = "bg-white dark:bg-surface-dark p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all group relative select-none flex flex-col gap-3 touch-none";
   const overlayClasses = "cursor-grabbing rotate-2 scale-105 shadow-2xl z-50 ring-2 ring-primary/50 opacity-100";
   const normalClasses = "hover:shadow-lg hover:border-primary/30 dark:hover:border-primary/30 cursor-grab active:cursor-grabbing";
 
@@ -183,7 +164,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isOverlay, onDoubleCli
             )}
         </div>
 
-        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors -mr-1 -mt-1">
+        <button 
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors -mr-1 -mt-1 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
              <Icon name="more_horiz" className="text-xl" />
         </button>
       </div>
@@ -239,5 +223,54 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isOverlay, onDoubleCli
         </div>
       )}
     </div>
+  );
+};
+
+export const SortableTaskCard: React.FC<{
+  task: Task;
+  onDoubleClick?: (task: Task) => void;
+  onUpdateTask?: (task: Task) => void;
+}> = ({ task, onDoubleClick }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      type: 'Task',
+      task,
+    },
+  });
+
+  const style = {
+    // CSS.Transform is more robust than CSS.Translate in some environments
+    transform: CSS.Transform.toString(transform),
+    transition,
+    touchAction: 'none' // Essential for touch drag
+  };
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="opacity-40 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-primary/40 rounded-2xl h-[200px]"
+      />
+    );
+  }
+
+  return (
+    <TaskCard 
+        task={task} 
+        style={style} 
+        attributes={attributes} 
+        listeners={listeners} 
+        setNodeRef={setNodeRef}
+        onDoubleClick={onDoubleClick}
+    />
   );
 };

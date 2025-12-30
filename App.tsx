@@ -6,7 +6,8 @@ import {
   DndContext,
   closestCorners,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragStartEvent,
@@ -53,11 +54,17 @@ export default function App() {
   
   const [invoiceSettings, setInvoiceSettings] = useState<InvoiceSettings>(DEFAULT_INVOICE_SETTINGS);
 
-  // Sensors for DnD
+  // Sensors for DnD - Updated for better reliability
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 5, // Avoid accidental drags
+        distance: 8, // Requires 8px movement to start drag (prevents accidental clicks)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200, // Short hold to pick up on touch devices
+        tolerance: 6, // Tolerance for movement during the delay
       },
     }),
     useSensor(KeyboardSensor, {
@@ -131,74 +138,92 @@ export default function App() {
         return col ? col.title : id;
     };
 
-    // Scenario 1: Dragging over another Task
-    if (isActiveTask && isOverTask) {
-        setTasks((prev) => {
-            const activeIndex = prev.findIndex((t) => t.id === activeId);
-            const overIndex = prev.findIndex((t) => t.id === overId);
-            
-            if (activeIndex === -1 || overIndex === -1) return prev;
+    // Scenario 1: Dragging over another Task in a DIFFERENT column
+    if (isOverTask) {
+        const activeIndex = tasks.findIndex((t) => t.id === activeId);
+        const overIndex = tasks.findIndex((t) => t.id === overId);
+        
+        if (activeIndex === -1 || overIndex === -1) return;
 
-            const newTasks = [...prev];
-            const movingTask = newTasks[activeIndex];
-            const targetColumnId = prev[overIndex].columnId;
+        const activeTask = tasks[activeIndex];
+        const overTask = tasks[overIndex];
 
-            // Only log if column actually changes
-            if (movingTask.columnId !== targetColumnId) {
-                movingTask.columnId = targetColumnId;
-                
-                // ADD ACTIVITY LOG
-                const newActivity: Activity = {
-                    id: `act-${Date.now()}`,
-                    type: 'move',
-                    content: `Moved to ${getColumnName(targetColumnId)}`,
-                    timestamp: new Date().toISOString(),
-                    user: 'You'
+        if (activeTask.columnId !== overTask.columnId) {
+             setTasks((prev) => {
+                const newTasks = [...prev];
+                // Clone the task to ensure immutability
+                newTasks[activeIndex] = { 
+                    ...activeTask, 
+                    columnId: overTask.columnId,
+                    // Log Activity
+                    activities: [
+                        {
+                            id: `act-${Date.now()}`,
+                            type: 'move',
+                            content: `Moved to ${getColumnName(overTask.columnId)}`,
+                            timestamp: new Date().toISOString(),
+                            user: 'You'
+                        },
+                        ...(activeTask.activities || [])
+                    ]
                 };
-                // Prepend new activity
-                movingTask.activities = [newActivity, ...(movingTask.activities || [])];
-                
+
+                // Reorder in new list immediately for visual feedback
                 return arrayMove(newTasks, activeIndex, overIndex);
-            }
-            return arrayMove(prev, activeIndex, overIndex);
-        });
+             });
+        }
     }
 
-    // Scenario 2: Dragging over a Column (empty or not)
-    if (isActiveTask && isOverColumn) {
-        setTasks((prev) => {
-            const activeIndex = prev.findIndex((t) => t.id === activeId);
-            if (activeIndex === -1) return prev;
+    // Scenario 2: Dragging over an EMPTY Column
+    if (isOverColumn) {
+        const activeIndex = tasks.findIndex((t) => t.id === activeId);
+        if (activeIndex === -1) return;
+        
+        const activeTask = tasks[activeIndex];
+        const overColumnId = String(overId);
 
-            if (prev[activeIndex].columnId !== overId) {
-                 const newTasks = [...prev];
-                 const movingTask = newTasks[activeIndex];
-                 const targetColumnId = String(overId);
-                 
-                 movingTask.columnId = targetColumnId;
-
-                 // ADD ACTIVITY LOG
-                 const newActivity: Activity = {
-                    id: `act-${Date.now()}`,
-                    type: 'move',
-                    content: `Moved to ${getColumnName(targetColumnId)}`,
-                    timestamp: new Date().toISOString(),
-                    user: 'You'
+        if (activeTask.columnId !== overColumnId) {
+             setTasks((prev) => {
+                const newTasks = [...prev];
+                // Clone the task to ensure immutability
+                newTasks[activeIndex] = { 
+                    ...activeTask, 
+                    columnId: overColumnId,
+                    activities: [
+                        {
+                            id: `act-${Date.now()}`,
+                            type: 'move',
+                            content: `Moved to ${getColumnName(overColumnId)}`,
+                            timestamp: new Date().toISOString(),
+                            user: 'You'
+                        },
+                        ...(activeTask.activities || [])
+                    ]
                 };
-                movingTask.activities = [newActivity, ...(movingTask.activities || [])];
 
-                 return newTasks; 
-            }
-            return prev;
-        });
+                return arrayMove(newTasks, activeIndex, activeIndex);
+             });
+        }
     }
   };
 
-  // Handle Drag End
+  // Handle Drag End (Reordering within the same column)
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveTask(null);
     const { active, over } = event;
     if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    const activeIndex = tasks.findIndex(t => t.id === activeId);
+    const overIndex = tasks.findIndex(t => t.id === overId);
+
+    if (activeIndex !== -1 && overIndex !== -1) {
+        setTasks((prev) => arrayMove(prev, activeIndex, overIndex));
+    }
   };
   
   // Create New Project Handler

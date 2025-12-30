@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Task, TagDefinition, Client, Revision, RevisionStatus } from '../types';
 import { Icon } from './Icon';
@@ -349,7 +348,7 @@ export const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({ task, 
                     {isAddingRevision && (
                         <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-primary/20">
                             <textarea 
-                                placeholder="What needs to be revised?"
+                                placeholder="What needs to be revised? Paste image URLs here..."
                                 className="w-full text-sm p-2 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 mb-2 focus:ring-1 focus:ring-primary outline-none text-text-light dark:text-text-dark"
                                 rows={2}
                                 value={revContent}
@@ -401,7 +400,10 @@ export const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({ task, 
                                     
                                     {isExpanded && (
                                         <div className="px-4 pb-4 pt-1 border-t border-gray-200 dark:border-gray-700">
-                                            <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark whitespace-pre-wrap mt-2">{rev.content}</p>
+                                            <div 
+                                              className="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-2"
+                                              dangerouslySetInnerHTML={{ __html: formatContentHtml(rev.content) }}
+                                            />
                                             <p className="text-[10px] text-gray-400 mt-2">{new Date(rev.date).toLocaleString()}</p>
                                         </div>
                                     )}
