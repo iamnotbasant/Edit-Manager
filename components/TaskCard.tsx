@@ -38,7 +38,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     return [...task.revisions].sort((a, b) => a.number - b.number);
   }, [task.revisions]);
 
-  const baseClasses = "bg-white dark:bg-surface-dark p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all group relative select-none flex flex-col gap-3 touch-none";
+  const baseClasses = "bg-white dark:bg-surface-dark p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all group relative select-none flex flex-col gap-3 touch-none overflow-hidden";
   const overlayClasses = "cursor-grabbing rotate-2 scale-105 shadow-2xl z-50 ring-2 ring-primary/50 opacity-100";
   const normalClasses = "hover:shadow-lg hover:border-primary/30 dark:hover:border-primary/30 cursor-grab active:cursor-grabbing";
 

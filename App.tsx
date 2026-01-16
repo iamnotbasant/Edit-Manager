@@ -34,6 +34,13 @@ import { SettingsView } from './components/SettingsView';
 
 type ViewState = 'projects' | 'clients' | 'invoices' | 'archive' | 'settings';
 
+/* 
+ * MAIN APP LAYOUT
+ * - Left Sidebar: Collapsible (w-72 or w-16)
+ * - Main Area: Flex-1, contains View Router
+ * - Projects View: Split into Kanban Area (Flex-1, Scrollable) + Calendar Sidebar (Right, Fixed Width)
+ */
+
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewState>('projects');
   // Default to collapsed (YouTube style "Mini" sidebar)

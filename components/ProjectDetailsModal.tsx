@@ -93,14 +93,16 @@ export const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({ task, 
   const formatContentHtml = (content: string) => {
     if (!content) return '';
     
-    // 1. Hotlink Image URLs
+    // 1. Hotlink Image URLs - FIX: Added display block and margin to prevent overlap
     // Regex matches http/https followed by non-whitespace, ending in image extension
     const urlRegex = /(https?:\/\/[^\s<>"')]+\.(?:png|jpg|jpeg|gif|webp)(?:\?[^\s<>"')]+)?)/gi;
 
     let html = content.replace(urlRegex, (match) => {
-        return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="block my-2 w-fit group" onclick="event.stopPropagation()">
-            <img src="${match}" class="max-w-full h-auto max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 block group-hover:opacity-95 transition-opacity" loading="lazy" alt="Attachment" />
-        </a>`;
+        return `<div class="block w-full my-3" onclick="event.stopPropagation()">
+            <a href="${match}" target="_blank" rel="noopener noreferrer" class="block w-fit">
+                <img src="${match}" class="block max-w-full w-auto h-auto max-h-[300px] rounded-lg border border-gray-200 dark:border-gray-700 object-contain hover:opacity-95 transition-opacity" loading="lazy" alt="Attachment" />
+            </a>
+        </div>`;
     });
     
     // 2. Highlight Keywords

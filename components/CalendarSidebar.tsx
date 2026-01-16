@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Icon } from './Icon';
 import { Task } from '../types';
 
+/* 
+ * CALENDAR SIDEBAR COMPONENT
+ * Dimensions: Fixed Width 18rem (w-72 / ~288px)
+ * Behavior: Hidden on small screens, Flex on XL screens
+ * Structure: Header (Month Nav), Grid (7 cols), Schedule List
+ */
+
 interface EventCardProps {
     icon: string;
     iconColor: string;
@@ -150,7 +157,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({ tasks = [] }) 
   };
 
   return (
-    <div className="w-72 h-full bg-surface-light dark:bg-surface-dark border-l border-border-light dark:border-border-dark hidden xl:flex flex-col flex-shrink-0 overflow-y-auto scrollbar-hide">
+    <div className="w-72 h-full bg-surface-light dark:bg-surface-dark border-l border-border-light dark:border-border-dark hidden xl:flex flex-col flex-shrink-0 overflow-y-auto scrollbar-hide pb-10">
         
         <div className="p-5 space-y-6">
             {/* Calendar Widget */}
